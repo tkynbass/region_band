@@ -33,7 +33,8 @@ module.exports = (robot) => {
                 Member[count].task_list = [];
         }
         
-                  res.send ('[タスク登録]は "目標: ○○"と入力してください。');
+        res.send ('[タスク登録]は "目標: ○○"と入力してください。' + '\n'
+                            + '(タスクは5個までしか登録できません。)');
         //console.log ( Member[0].point);
     });
     
@@ -41,6 +42,7 @@ module.exports = (robot) => {
     
     robot.respond(/目標:(.*)$/i, (res) => {
         
+        // ユーザー識別番号をuser_numberに代入 //
         const user_number = userID[res.message.user.name];
                   
         if (Member[userID[res.message.user.name]].task_number < 5) { // 未達成タスクが5個未満 //
@@ -53,7 +55,7 @@ module.exports = (robot) => {
                   Member[userID[res.message.user.name]].task_number += 1;
                   Member[userID[res.message.user.name]].task_total += 1;
                   res.send (Member[user_number].task_list[total_task]['content'] + 'をタスク登録しました。');
-                  console.log (Member[user_number].task_list[total_task]);
+                  //console.log (Member[user_number].task_list[total_task]);
         }
         else { // 未達成タスクが5個以上 //
                   
