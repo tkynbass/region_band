@@ -46,7 +46,7 @@ module.exports = (robot) => {
             const total_task = Member[userID[res.message.user.name]].task_total;
                   
                   // タスク送信者のtask_listに追加 //
-            Member[userID[res.message.user.name]].task_list.push( {ID: total_task, content: res.match[1], flag: "false"});
+            Member[userID[res.message.user.name]].task_list.push( {ID: total_task, content: res.match[1], flag: false});
             Member[userID[res.message.user.name]].task_number += 1;
             Member[userID[res.message.user.name]].task_total += 1;
             res.send (Member[user_number].task_list[total_task]['content'] + 'をタスク登録しました。');
