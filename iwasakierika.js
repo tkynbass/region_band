@@ -1,4 +1,45 @@
 'use strict';
+class Person {
+    
+  //task_list = [];
+  
+  constructor () {
+      this.point = 0.0;
+      // 未達成タスクの個数 //
+      this.task_number = 0;
+      // これまでインプットされたタスクの個数 //
+      this.task_total = 0;
+  }
+}
+
+// Person.task_list = [];
+
+module.exports = (robot) => {
+  
+  var Member = [], userID = {};
+  
+  robot.respond(/START$/i, (res) => {
+      
+      //user name list
+      // 「userNames」の最後の要素はbotの名前になる
+      const userNames = res.message.roomUsers.map(user => `${user.name}`);
+      for (let count = 0; count < userNames.length - 1; count++){
+              
+              // 各メンバーに対応するnumber割り当て　& インスタンス化作成 //
+              // userID = {"userNames":0(ID番号)}
+              // count = ID番号(int)
+              userID[userNames[count]] = count;
+              // 
+              Member[count] = new Person();
+              Member[count].task_list = [];
+              // console.log(Member[count].task_list)
+      }
+      
+      res.send ('[タスク登録]は "目標: ○○"と入力してください。' + '\n'
+                          + '(タスクは5個までしか登録できません。)');
+      // console.log ( Member[0].point);
+      console.log(Member[userID[res.message.user.name]]);
+    });
 
 module.exports = (robot) =>{
   robot.respond(/日報$/i, (res) => {
