@@ -35,16 +35,13 @@ module.exports = (robot) => {
     });
     
     //Member[userID[res.message.user.name]].point += 1;
-    
     robot.respond(/目標:(.*)$/i, (res) => {
         
         const user_number = userID[res.message.user.name];
                   
         if (Member[userID[res.message.user.name]].task_number < 5) { // 未達成タスクが5個未満 //
-                  
             const current_task = Member[userID[res.message.user.name]].task_number;
-            const total_task = Member[userID[res.message.user.name]].task_total;
-                  
+            const total_task = Member[userID[res.message.user.name]].task_total;    
                   // タスク送信者のtask_listに追加 //
             Member[userID[res.message.user.name]].task_list.push( {ID: total_task, content: res.match[1], flag: false});
             Member[userID[res.message.user.name]].task_number += 1;
@@ -64,6 +61,7 @@ module.exports = (robot) => {
   });
 
   robot.hear(/DONE/, (res) => {
+    const total_task = Member[userID[res.message.user.name]].task_total; 
     var task_undone = []; //未完了タスク
     //未完了タスクの抽出
     for(let k = 0; k < total_task; k++){
@@ -71,7 +69,7 @@ module.exports = (robot) => {
         task_undone.push(Member[userID[res.message.user.name]].task_list[k]['content']);
       }
     }
-    
+    console.log(task_undone);
     res.send({
       question: '完了したタスクを選んでください。',
       options: task_undone,  //ここで未完了タスクをセレクトスタンプで表示させたいけどできない、??
