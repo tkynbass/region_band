@@ -23,14 +23,18 @@ module.exports = (robot) => {
     robot.respond(/START$/i, (res) => {
         
         //user name list
+        // 「userNames」の最後の要素はbotの名前になる
         const userNames = res.message.roomUsers.map(user => `${user.name}`);
-        
-        for (let count = 0; count < userNames.length; count++){
+        for (let count = 0; count < userNames.length - 1; count++){
                 
                 // 各メンバーに対応するnumber割り当て　& インスタンス化作成 //
+                // userID = {"userNames":0(ID番号)}
+                // count = ID番号(int)
                 userID[userNames[count]] = count;
+                // 
                 Member[count] = new Person();
                 Member[count].task_list = [];
+                // console.log(Member[count].task_list)
         }
         
         res.send ('[タスク登録]は "目標: ○○"と入力してください。' + '\n'
