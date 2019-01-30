@@ -39,9 +39,10 @@ module.exports = (robot) => {
         
         res.send ('[タスク登録]は "目標: ○○"と入力してください。' + '\n'
                             + '(タスクは5個までしか登録できません。)');
-        //console.log ( Member[0].point);
-    });
-    
+        // console.log ( Member[0].point);
+        console.log(Member[userID[res.message.user.name]]);
+      });
+    //Member[userID[res.message.user.name]] = Person{point:0, task_number:0, task_total:0, task_list[]} 
     //Member[userID[res.message.user.name]].point += 1;
     
     robot.respond(/目標:(.*)$/i, (res) => {
