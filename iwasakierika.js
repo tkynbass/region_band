@@ -102,7 +102,7 @@ module.exports = (robot) => {
     var number_of_menbers = 5;
     var point_msg = [];
     var rank_msg = [];
-    var finel_task = [];
+    var final_task = [];
     var point = [10,30,50,20,40];
     var point_sort = point.slice().sort(
       function(a,b){
