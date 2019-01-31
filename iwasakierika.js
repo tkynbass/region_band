@@ -98,11 +98,12 @@ module.exports = (robot) => {
   });
 
   robot.respond(/日報$/i, (res) => {
+    const userNames = res.message.roomUsers.map(user => `${user.name}`);
     const total_task = Member[userID[res.message.user.name]].task_total;
-    var number_of_menbers = 5;
+    var number_of_menbers = userNames.length;
     var point_msg = [];
     var rank_msg = [];
-    var finel_task = [];
+    var final_task = [];
     var point = [10,30,50,20,40];
     var point_sort = point.slice().sort(
       function(a,b){
