@@ -89,12 +89,14 @@ module.exports = (robot) => {
     });
   });
 
-  //セレクトスタンプでの選択後の処理
-  robot.hear('select', (res) => {
-    res.send(robot.brain.get(res.json.in_reply_to)); //onsendのメッセージの表示
-    // flag の更新処理をここに記述したい
-  });
-
+    //セレクトスタンプでの選択後の処理
+    robot.hear('select', (res) => {
+       //res.send(robot.brain.get(res.json.in_reply_to)); //onsendのメッセージの表示
+       res.send({
+            question: robot.brain.get(res.json.in_reply_to),
+            options: ['イイネ！'],
+        });
+    });
 
   robot.respond(/CLOSE$/i, (res) => {
     res.send({
