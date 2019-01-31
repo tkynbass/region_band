@@ -4,12 +4,13 @@ class Person {
     
   //task_list = [];
   
-  constructor () {
+  constructor (user_name) {
       this.point = 0.0;
       // 未達成タスクの個数 //
       this.task_number = 0;
       // これまでインプットされたタスクの個数 //
       this.task_total = 0;
+      this.name = user_name;
   }
 }
 
@@ -27,29 +28,30 @@ module.exports = (robot) => {
         employment = false;
     }
     
-    robot.respond(/START$/i, (res) => {
+    robot.hear(/START$/i, (res) => {
         
         //user name list
-      const userNames = res.message.roomUsers.map(user => `${user.name}`);
+        const userNames = res.message.roomUsers.map(user => `${user.name}`);
         
-      for (let count = 0; count < userNames.length; count++){
+        for (let count = 0; count < userNames.length; count++){
                 
                 // 各メンバーに対応するnumber割り当て　& インスタンス化作成 //
                 userID[userNames[count]] = count;
-                Member[count] = new Person();
+                Member[count] = new Person(userNames[count]);
                 Member[count].task_list = [];
-      }
+        }
         
         res.send ('[タスク登録]は "目標: ○○"と入力してください。');
-        //console.log ( Member[0].point);
+        console.log ( userNames);
+        
     });
     
     //Member[userID[res.message.user.name]].point += 1;
-    robot.respond(/目標:(.*)$/i, (res) => {
+    robot.hear(/目標:(.*)$/i, (res) => {
         
         const user_number = userID[res.message.user.name];
                   
-        if (Member[userID[res.message.user.name]].task_number < 5) { // 未達成タスクが5個未満 //
+        if (Member[userID[res.message.user.name]].task_number < 5 && res.match[1] !== '') { // 未達成タスクが5個未満 //
             const current_task = Member[userID[res.message.user.name]].task_number;
             const total_task = Member[userID[res.message.user.name]].task_total;    
                   // タスク送信者のtask_listに追加 //
@@ -66,11 +68,8 @@ module.exports = (robot) => {
         }
     });
 
-    robot.respond(/PING$/i, (res) => { //bot確認用
-        res.send('PONG');
-    });
 
-  robot.hear(/DONE/, (res) => {
+  robot.hear(/DONE$/i, (res) => {
     const total_task = Member[userID[res.message.user.name]].task_total; 
     var task_undone = []; //未完了タスク
     //未完了タスクの抽出
@@ -107,47 +106,64 @@ module.exports = (robot) => {
     res.send(`Server time is: ${new Date()}`);
   });
 
-  robot.respond(/日報$/i, (res) => {
-    const total_task = Member[userID[res.message.user.name]].task_total;
-    var number_of_menbers = Member.length;
-    var point_msg = [];
-    var rank_msg = [];
-    //var task = ["コーヒーを飲む", "皿を洗う", "新聞を読む", "机を片付ける", "服をたたむ"]
-    //var point = [10,30,50,20,40];
-    var point_sort = point.slice().sort(
-      function(a,b){
-        return (a < b ? 1 : -1);
-      }
-    );
-    var id = 0;
-    
-    var output_tasks = () => {
-      
-      for(let k = 0; k < total_task; k++){
-        res.send(Member[userID[res.message.user.name]].task_list[k]['content']);
-      }
-    }
-
-    var output_points = () => {
-      for (id = 0; id < number_of_menbers; id++){
-        var point_msg_each = "ユーザ" + id + "の得点は" + point[id] + "です";
-        point_msg.push(point_msg_each);
-      }
-      res.send(point_msg.join("\n"));
-    }
-    
-    var output_rank = () => {
-      for (var id = 0; id < number_of_menbers; id++){
-        var rank = point_sort.indexOf(point[id]) + 1;
-        var rank_msg_each = "ユーザ" + id + "の順位は" + rank + "位です";
-        rank_msg.push(rank_msg_each);
-      }
-      res.send(rank_msg.join("\n"));
-    }
-    
-    output_tasks();  
-    output_points();
-    output_rank();
-  })
+    robot.hear(/日報$/i, (res) => {
+                
+        const userNames = res.message.roomUsers.map(user => `${user.name}`);
+        //const total_task = Member[userID[res.message.user.name]].task_total;
+        var number_of_menbers = userNames.length;
+        var point_msg = [], rank_msg = [], point = [];
+        // point 配列作成 //
+        for (var id = 0; id < userID; id ++){
+               
+            point.push (Member[id].point);
+        }
+        var point_sort = point.slice().sort(
+            function(a,b){
+                return (a < b ? 1 : -1);
+            }
+        );
+        
+        
+        var id = 0;
+          
+        var output_tasks = () => {
+            
+            for (var id = 0; id < number_of_menbers; id ++){
+               
+               if (Member[id].task_total !== 0){
+                   var final_task = [];
+                   for(let k = 0; k < Member[id].task_total; k++){
+               
+                        if (Member[id].task_list[k]['flag'] === false) {
+                            var final_task_each = Member[id].task_list[k]['content'];
+                            final_task.push(final_task_each);
+                        }
+                   }
+                   res.send(Member[id].name + "の残りタスクは\n" + final_task.join("\n")  + "です");
+               }
+            }
+        }
+          
+        var output_points = () => {
+            for (id = 0; id < number_of_menbers; id++){
+                var point_msg_each = Member[id].name + "の得点は" + Member[id].point + "です";
+                point_msg.push(point_msg_each);
+            }
+            res.send(point_msg.join("\n"));
+        }
+          
+        var output_rank = () => {
+            for (var id = 0; id < number_of_menbers; id++){
+               var rank = point_sort.indexOf(Member[id].point) + 1;
+               var rank_msg_each = Member[id].name + "の順位は" + rank + "位です";
+               rank_msg.push(rank_msg_each);
+            }
+            res.send(rank_msg.join("\n"));
+        }
+          
+        output_tasks();
+        output_points();
+        output_rank();
+    })
   
 };
