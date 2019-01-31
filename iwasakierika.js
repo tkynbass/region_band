@@ -102,7 +102,7 @@ module.exports = (robot) => {
     var number_of_menbers = 5;
     var point_msg = [];
     var rank_msg = [];
-    var task = ["コーヒーを飲む", "皿を洗う", "新聞を読む", "机を片付ける", "服をたたむ"]
+    var finel_task = [];
     var point = [10,30,50,20,40];
     var point_sort = point.slice().sort(
       function(a,b){
@@ -112,10 +112,11 @@ module.exports = (robot) => {
     var id = 0;
     
     var output_tasks = () => {
-      
       for(let k = 0; k < total_task; k++){
-        res.send(Member[userID[res.message.user.name]].task_list[k]['content']);
+        var final_task_each = Member[userID[res.message.user.name]].task_list[k]['content'];
+        final_task.push(final_task_each);
       }
+      res.send(final_task.join("\n"));
     }
 
     var output_points = () => {
