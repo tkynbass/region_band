@@ -67,34 +67,43 @@ module.exports = (robot) => {
                             'まずは今登録しているタスクを消費しましょう!');
         }
     });
-
-
-  robot.hear(/DONE$/i, (res) => {
-    const total_task = Member[userID[res.message.user.name]].task_total; 
-    var task_undone = []; //未完了タスク
-    //未完了タスクの抽出
-    for(let k = 0; k < total_task; k++){
-      if(Member[userID[res.message.user.name]].task_list[k]['flag'] === false){
-        task_undone.push(Member[userID[res.message.user.name]].task_list[k]['content']);
-      }
-    }
-    console.log(task_undone);
-    res.send({
-      question: '完了したタスクを選んでください。',
-      options: task_undone,  //ここで未完了タスクをセレクトスタンプで表示させたいけどできない、??
-      // options: [選択肢1,選択肢2,選択肢3],　　だと行けるのだけど、、
-      onsend: (sent, msg) => {
-        robot.brain.set(`_${msg.id.high}_${msg.id.low}`, 'タスク完了処理をしました。おめでとう！');
-      }
+    
+    robot.hear(/DONE$/i, (res) => {
+        const total_task = Member[userID[res.message.user.name]].task_total;
+        var task_undone = []; //未完了タスク
+        //未完了タスクの抽出
+        for(let k = 0; k < total_task; k++){
+            if(Member[userID[res.message.user.name]].task_list[k]['flag'] === false){
+                task_undone.push(Member[userID[res.message.user.name]].task_list[k]);
+           }
+        }
+        console.log(task_undone);
+        var task_undone_content = task_undone.map(function(value){return value['content']});
+        var task_undone_flag = task_undone.map(function(value){return value['flag']});
+        var task_undone_ID = task_undone.map(function(value){return value['ID']});
+        res.send({
+            question: '完了したタスクを選んでください。',
+            options: task_undone_content,
+            onsend: (sent, msg) => {
+                 robot.brain.set(`_${msg.id.high}_${msg.id.low}`, 'タスク完了処理をしました。偉業！');
+                 robot.brain.set('task_user', Member[userID[res.message.user.name]]);
+                 console.log(msg.id);
+                 //Member[userID[res.message.user.name]].task_list[sent.message.id]['flag'] = true; //フラグの更新
+            }
+        });
     });
-  });
-
+    
     //セレクトスタンプでの選択後の処理
     robot.hear('select', (res) => {
-       //res.send(robot.brain.get(res.json.in_reply_to)); //onsendのメッセージの表示
-       res.send({
+        //res.send(robot.brain.get(res.json.in_reply_to)); //onsendのメッセージの表示
+        var taskUserName = robot.brain.get('task_user');
+        console.log(robot.brain.get('task_user'));
+        res.send({
             question: robot.brain.get(res.json.in_reply_to),
             options: ['イイネ！'],
+            onsend: (sent) => {
+                taskUserName.point += 1.0; //ポイント加算
+            }
         });
     });
 
@@ -147,18 +156,25 @@ module.exports = (robot) => {
         }
           
         var output_points = () => {
+            
             for (id = 0; id < number_of_menbers; id++){
-                var point_msg_each = Member[id].name + "の得点は" + Member[id].point + "です";
-                point_msg.push(point_msg_each);
+               
+               if (Member[id].name !== 'もってぃーくん'){
+                   var point_msg_each = Member[id].name + "の得点は" + Member[id].point + "です";
+                   point_msg.push(point_msg_each);
+               }
             }
             res.send(point_msg.join("\n"));
         }
           
         var output_rank = () => {
             for (var id = 0; id < number_of_menbers; id++){
-               var rank = point_sort.indexOf(Member[id].point) + 1;
-               var rank_msg_each = Member[id].name + "の順位は" + rank + "位です";
-               rank_msg.push(rank_msg_each);
+               
+               if (Member[id].name !== 'もってぃーくん'){
+                   var rank = point_sort.indexOf(Member[id].point) + 1;
+                   var rank_msg_each = Member[id].name + "の順位は" + rank + "位です";
+                   rank_msg.push(rank_msg_each);
+               }
             }
             res.send(rank_msg.join("\n"));
         }
